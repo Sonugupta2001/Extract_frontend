@@ -12,8 +12,7 @@ const App = () => {
       <Router>
         <Layout>
           <Routes>
-            <Route path="/extraction" element={<PriceTracking />} />
-            <Route path="/" element={<Navigate to="/extraction" replace />} />
+            <Route path="/" element={<PriceTracking />} />
           </Routes>
         </Layout>
       </Router>
