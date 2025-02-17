@@ -28,7 +28,8 @@ export const useExport = (data) => {
                     return;
             }
             handleExportClose();
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Export error:', error);
             throw new Error('Failed to export data');
         }
@@ -39,7 +40,8 @@ export const useExport = (data) => {
             await navigator.clipboard.writeText(text);
             setCopySuccess(true);
             setTimeout(() => setCopySuccess(false), 2000);
-        } catch (err) {
+        }
+        catch (err) {
             console.error('Failed to copy text:', err);
         }
     };

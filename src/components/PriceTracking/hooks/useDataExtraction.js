@@ -14,10 +14,12 @@ export const useDataExtraction = () => {
 
             const result = await extractData(url, extractionType, prompt);
             setData(Array.isArray(result) ? result : [result]);
-        } catch (err) {
+        }
+        catch (err) {
             console.error('Extraction error:', err);
             setError(err.message);
-        } finally {
+        }
+        finally {
             setLoading(false);
         }
     };
