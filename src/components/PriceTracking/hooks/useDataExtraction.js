@@ -6,14 +6,14 @@ export const useDataExtraction = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
-    const handleExtraction = async (url, extractionType, prompt = '') => {
+    const handleExtraction = async (urls, extractionType, prompt = '') => {
         try {
             setLoading(true);
             setError('');
             setData(null);
 
-            const result = await extractData(url, extractionType, prompt);
-            setData(Array.isArray(result) ? result : [result]);
+            const results = await extractData(urls, extractionType, prompt);
+            setData(results);
         }
         catch (err) {
             console.error('Extraction error:', err);

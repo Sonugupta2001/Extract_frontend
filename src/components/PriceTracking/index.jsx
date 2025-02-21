@@ -9,10 +9,11 @@ import PriceTrackingView from './components/PriceTrackingView';
 import CustomExtractionView from './components/CustomExtractionView';
 import { useDataExtraction } from './hooks/useDataExtraction';
 import { useExport } from './hooks/useExport';
-import { EXTRACTION_TYPES, VIEW_FORMATS } from '../../config/constants';
+import { EXTRACTION_TYPES, VIEW_FORMATS, E_COMMERCE_SITES } from '../../config/constants';
 
 const PriceTracking = () => {
-    const [url, setUrl] = useState('');
+    const [selectedSites, setSelectedSites] = useState([]);
+    const [customUrls, setCustomUrls] = useState([]);
     const [prompt, setPrompt] = useState('');
     const [extractionType, setExtractionType] = useState(EXTRACTION_TYPES.PRICE);
     const [viewFormat, setViewFormat] = useState(VIEW_FORMATS.STRUCTURED);
@@ -27,8 +28,32 @@ const PriceTracking = () => {
 
     const exportProps = useExport(data);
 
+    const handleSiteChange = (newSites) => {
+        setSelectedSites(newSites);
+    };
+
+    const handleCustomUrlAdd = (url) => {
+        if (!customUrls.includes(url)) {
+            setCustomUrls([...customUrls, url]);
+        }
+    };
+
+    const handleCustomUrlRemove = (url) => {
+        setCustomUrls(customUrls.filter(u => u !== url));
+    };
+    
+
     const handleExtract = () => {
-        handleExtraction(url, extractionType, prompt);
+        const urls = [
+            ...selectedSites.map(site => {
+                const siteConfig = E_COMMERCE_SITES.find(s => s.value === site);
+                return `https://www.${siteConfig.baseUrl}/*`;
+            }),
+            ...customUrls.map(sites => {
+                return `${sites}/*`;
+            })
+        ];
+        handleExtraction(urls, extractionType, prompt);
     };
 
     return (
@@ -36,11 +61,14 @@ const PriceTracking = () => {
             <Header />
             
             <InputSection
-                url={url}
+                selectedSites={selectedSites}
+                customUrls={customUrls}
                 prompt={prompt}
                 loading={loading}
                 extractionType={extractionType}
-                onUrlChange={setUrl}
+                onSiteChange={handleSiteChange}
+                onCustomUrlAdd={handleCustomUrlAdd}
+                onCustomUrlRemove={handleCustomUrlRemove}
                 onPromptChange={setPrompt}
                 onExtractionTypeChange={setExtractionType}
                 onExtract={handleExtract}

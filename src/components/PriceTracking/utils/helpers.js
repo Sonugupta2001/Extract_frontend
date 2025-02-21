@@ -10,23 +10,26 @@ export const downloadFile = (content, fileName, fileType) => {
     window.URL.revokeObjectURL(url);
 };
 
-
 export const exportToJson = (data) => {
     const content = JSON.stringify(data, null, 2);
-    downloadFile(content, `export-${Date.now()}.json`, 'application/json');
+    downloadFile(content, `price-comparison-${Date.now()}.json`, 'application/json');
 };
 
-
 export const exportToCsv = (data) => {
-    const headers = Object.keys(data[0]);
-    const rows = data.map(item => 
-        headers.map(header => {
-            const value = item[header];
-            return typeof value === 'object' 
-                ? JSON.stringify(value)
-                : String(value);
-        }).join(',')
-    );
-    const content = [headers.join(','), ...rows].join('\n');
-    downloadFile(content, `export-${Date.now()}.csv`, 'text/csv');
+    const headers = ['Product Name', 'Current Price', 'Original Price', 'Available Stock', 'Discount', 'Source'];
+    const rows = data.map(item => [
+        item.productName,
+        item.currentPrice,
+        item.originalPrice,
+        item.stock,
+        item.discount,
+        item.source
+    ]);
+    
+    const content = [
+        headers.join(','),
+        ...rows.map(row => row.join(','))
+    ].join('\n');
+    
+    downloadFile(content, `price-comparison-${Date.now()}.csv`, 'text/csv');
 };

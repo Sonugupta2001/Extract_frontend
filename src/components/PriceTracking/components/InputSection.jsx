@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
     Box,
     FormControl,
@@ -7,43 +7,135 @@ import {
     Radio,
     Typography,
     Button,
-    CircularProgress
+    CircularProgress,
+    Select,
+    MenuItem,
+    Chip,
+    OutlinedInput,
+    InputLabel,
+    Divider
 } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import ChatIcon from '@mui/icons-material/Chat';
-import { StyledTextField, StyledPaper } from '../styles/StyledComponents';
-import { EXTRACTION_TYPES } from '../../../config/constants';
+import AddIcon from '@mui/icons-material/Add';
+import { StyledPaper, StyledTextField } from '../styles/StyledComponents';
+import { EXTRACTION_TYPES, E_COMMERCE_SITES } from '../../../config/constants';
 
 const InputSection = ({
-    url,
+    selectedSites,
+    customUrls,
     prompt,
     loading,
     extractionType,
-    onUrlChange,
+    onSiteChange,
+    onCustomUrlAdd,
+    onCustomUrlRemove,
     onPromptChange,
     onExtractionTypeChange,
     onExtract
 }) => {
+    const [customUrl, setCustomUrl] = useState('');
+
+    const handleCustomUrlSubmit = (e) => {
+        e.preventDefault();
+        if (customUrl.trim()) {
+            onCustomUrlAdd(customUrl.trim());
+            setCustomUrl('');
+        }
+    };
+
     return (
         <StyledPaper elevation={0}>
             <Box sx={{ p: 3 }}>
-                <Box sx={{
-                    display: 'flex',
-                    gap: 1.5,
-                    alignItems: 'center',
-                    mb: 3
-                }}>
-                    <StyledTextField
-                        fullWidth
-                        placeholder="Paste URL here..."
-                        value={url}
-                        onChange={(e) => onUrlChange(e.target.value)}
-                        disabled={loading}
-                        InputProps={{
-                            startAdornment: <SearchIcon color="action" sx={{ color: 'text.secondary', mr: 1 }} />,
-                        }}
-                    />
+                <Box sx={{ mb: 3 }}>
+                    <FormControl fullWidth sx={{ mb: 2 }}>
+                        <InputLabel>Select E-commerce Sites</InputLabel>
+                        <Select
+                            multiple
+                            value={selectedSites}
+                            onChange={(e) => onSiteChange(e.target.value)}
+                            input={<OutlinedInput label="Select E-commerce Sites" />}
+                            renderValue={(selected) => (
+                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                    {selected.map((value) => (
+                                        <Chip 
+                                            key={value} 
+                                            label={E_COMMERCE_SITES.find(site => site.value === value)?.name} 
+                                        />
+                                    ))}
+                                </Box>
+                            )}
+                        >
+                            {E_COMMERCE_SITES.map((site) => (
+                                <MenuItem key={site.value} value={site.value}>
+                                    {site.name}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+
+                    <Divider sx={{ my: 2 }}>
+                        <Typography color="textSecondary" variant="body2">OR</Typography>
+                    </Divider>
+
+                    <Box sx={{ 
+                        display: 'flex',
+                        gap: 1,
+                    }}>
+                        <Box sx={{ flex: 1 }}>
+                            <StyledTextField
+                                fullWidth
+                                placeholder="Enter your custom URL here..."
+                                value={customUrl}
+                                onChange={(e) => setCustomUrl(e.target.value)}
+                                helperText="Add multiple custom URLs one by one"
+                                InputProps={{
+                                    sx: { height: '56px' }
+                                }}
+                            />
+                        </Box>
+                        <Button 
+                            variant="contained"
+                            onClick={handleCustomUrlSubmit}
+                            disabled={!customUrl.trim()}
+                            sx={{
+                                height: '56px',
+                                width: '56px',
+                                minWidth: '56px',
+                                padding: 0,
+                                backgroundColor: '#000000',
+                                color: '#ffffff',
+                                '&:hover': {
+                                    backgroundColor: '#000000',
+                                },
+                                '&:disabled': {
+                                    backgroundColor: '#E0E0E0',
+                                    color: '#9E9E9E',
+                                }
+                            }}
+                        >
+                            <AddIcon />
+                        </Button>
+                    </Box>
+
+                    {customUrls.length > 0 && (
+                        <Box sx={{ mt: 2 }}>
+                            <Typography variant="subtitle2" color="textSecondary" sx={{ mb: 1 }}>
+                                Added Custom URLs:
+                            </Typography>
+                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                                {customUrls.map((url, index) => (
+                                    <Chip
+                                        key={index}
+                                        label={url}
+                                        onDelete={() => onCustomUrlRemove(url)}
+                                        color="primary"
+                                        variant="outlined"
+                                    />
+                                ))}
+                            </Box>
+                        </Box>
+                    )}
                 </Box>
 
                 <FormControl component="fieldset">
@@ -52,9 +144,9 @@ const InputSection = ({
                         value={extractionType}
                         onChange={(e) => onExtractionTypeChange(e.target.value)}
                     >
-                        <FormControlLabel 
+                        <FormControlLabel
                             value={EXTRACTION_TYPES.PRICE}
-                            control={<Radio />} 
+                            control={<Radio />}
                             label={
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                     <LocalOfferIcon />
@@ -62,9 +154,9 @@ const InputSection = ({
                                 </Box>
                             }
                         />
-                        <FormControlLabel 
+                        <FormControlLabel
                             value={EXTRACTION_TYPES.CUSTOM}
-                            control={<Radio />} 
+                            control={<Radio />}
                             label={
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                     <ChatIcon />
@@ -93,7 +185,7 @@ const InputSection = ({
                     <Button
                         variant="contained"
                         onClick={onExtract}
-                        disabled={!url || (extractionType === EXTRACTION_TYPES.CUSTOM && !prompt) || loading}
+                        disabled={(!selectedSites.length && !customUrls.length) || loading}
                         sx={{
                             height: 56,
                             minWidth: '120px',
@@ -117,7 +209,7 @@ const InputSection = ({
                         {loading ? (
                             <CircularProgress size={24} sx={{ color: '#ffffff' }} />
                         ) : (
-                            'Extract Data'
+                            'Compare Prices'
                         )}
                     </Button>
                 </Box>

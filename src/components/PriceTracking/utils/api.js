@@ -1,21 +1,18 @@
 import { API_BASE_URL } from '../../../config/constants';
 
-export const extractData = async (url, extractionType, prompt = '') => {
+export const extractData = async (urls, extractionType, prompt = '') => {
     const endpoint = extractionType === 'price' 
         ? `${API_BASE_URL}/extract` 
         : `${API_BASE_URL}/extract-custom`;
 
-    const params = extractionType === 'price'
-        ? `url=${encodeURIComponent(url)}`
-        : `url=${encodeURIComponent(url)}&prompt=${encodeURIComponent(prompt)}`;
-
-    const response = await fetch(`${endpoint}?${params}`, {
-        method: 'GET',
+    const response = await fetch(endpoint, {
+        method: 'POST',
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
         },
         mode: 'cors',
+        body: JSON.stringify({ urls, prompt }),
     });
 
     if (!response.ok) {
@@ -27,5 +24,8 @@ export const extractData = async (url, extractionType, prompt = '') => {
         throw new Error(result.error);
     }
 
-    return result;
+    return result.map(item => ({
+        ...item,
+        source: new URL(item.url).hostname
+    }));
 };

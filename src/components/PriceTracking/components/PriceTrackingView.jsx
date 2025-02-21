@@ -18,7 +18,7 @@ import {
     DataViewTab
 } from '../styles/StyledComponents';
 import { VIEW_FORMATS } from '../../../config/constants';
-import TableView from './TableView';
+
 
 const PriceTrackingView = ({
     data,
@@ -42,7 +42,6 @@ const PriceTrackingView = ({
                 >
                     <DataViewTab label="Structured View" value={VIEW_FORMATS.STRUCTURED} />
                     <DataViewTab label="JSON View" value={VIEW_FORMATS.JSON} />
-                    <DataViewTab label="Table View" value={VIEW_FORMATS.TABLE} />
                 </DataViewTabs>
             </Box>
 
@@ -96,7 +95,7 @@ const PriceTrackingView = ({
                                             </PriceChip>
                                             {item.discount && (
                                                 <PriceChip variant="discount">
-                                                    Save {item.discount}
+                                                    {item.discount}
                                                 </PriceChip>
                                             )}
                                         </Box>
@@ -107,6 +106,14 @@ const PriceTrackingView = ({
                                             sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
                                         >
                                             Last updated: {new Date(item.timestamp).toLocaleString()}
+                                        </Typography>
+
+                                        <Typography
+                                            variant="body2"
+                                            color="text.secondary"
+                                            sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
+                                        >
+                                            Available Stocks: {item.stockStatus}
                                         </Typography>
                                     </Box>
                                 </Box>
@@ -124,10 +131,6 @@ const PriceTrackingView = ({
                     }}>
                         {JSON.stringify(data, null, 2)}
                     </pre>
-                )}
-
-                {viewFormat === VIEW_FORMATS.TABLE && (
-                    <TableView data={data} />
                 )}
             </Box>
         </StyledPaper>
